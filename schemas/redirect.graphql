@@ -1,0 +1,115 @@
+# Redirect Manager Schema
+#
+# Tables for URL redirect management with static/regex matching,
+# host-specific configuration, and versioning.
+
+"""
+Redirect rule with static or regex pattern matching.
+Supports query string operations and time-based activation.
+"""
+type Rule @table(name: "rule", database: "app-redirector") @export(name: "rule") {
+  """Unique identifier for the rule"""
+  id: ID!
+
+  """Static path to match (e.g., /old-page)"""
+  staticPath: String
+
+  """Regex pattern for dynamic matching"""
+  regexPattern: String
+
+  """Target URL for redirect"""
+  targetUrl: String!
+
+  """HTTP status code (301, 302, 307, 308)"""
+  statusCode: Int!
+
+  """Query string operation: preserve, ignore, filter, append"""
+  queryStringOp: String
+
+  """Query parameters to preserve (when queryStringOp = filter)"""
+  preserveParams: String
+
+  """Query parameters to append to target"""
+  appendParams: String
+
+  """UTC start time for rule activation (ISO 8601)"""
+  utcStartTime: String
+
+  """UTC end time for rule deactivation (ISO 8601)"""
+  utcEndTime: String
+
+  """Host filter (empty = global rule)"""
+  host: String
+
+  """Version identifier for mass cutover"""
+  version: String
+
+  """Priority for rule matching (lower = higher priority)"""
+  priority: Int
+
+  """Rule is active"""
+  active: Boolean!
+
+  """Description/notes"""
+  description: String
+
+  """Created timestamp"""
+  createdAt: String!
+
+  """Last updated timestamp"""
+  updatedAt: String!
+}
+
+"""
+Host-specific redirect configuration.
+Allows per-host version control and settings.
+"""
+type Hosts @table(name: "hosts", database: "app-redirector") @export(name: "hosts") {
+  """Hostname (e.g., example.com)"""
+  id: ID!
+
+  """Active version for this host"""
+  activeVersion: String
+
+  """Host is enabled for redirects"""
+  enabled: Boolean!
+
+  """Fallback URL for unmatched paths"""
+  fallbackUrl: String
+
+  """Description/notes"""
+  description: String
+
+  """Created timestamp"""
+  createdAt: String!
+
+  """Last updated timestamp"""
+  updatedAt: String!
+}
+
+"""
+Version control for mass cutover of redirect rules.
+Allows testing and atomic activation of rule sets.
+"""
+type Version @table(name: "version", database: "app-redirector") @export(name: "version") {
+  """Version identifier (e.g., v1, v2, prod-2024-01)"""
+  id: ID!
+
+  """Version name/label"""
+  name: String!
+
+  """Version is active globally"""
+  active: Boolean!
+
+  """UTC activation time (ISO 8601)"""
+  activatedAt: String
+
+  """Description/notes"""
+  description: String
+
+  """Created timestamp"""
+  createdAt: String!
+
+  """Last updated timestamp"""
+  updatedAt: String!
+}

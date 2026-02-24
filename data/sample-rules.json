@@ -1,0 +1,102 @@
+{
+  "database": "redirector",
+  "table": "Rule",
+  "records": [
+    {
+      "id": "0||||/old-page",
+      "path": "/old-page",
+      "host": "",
+      "redirectURL": "/new-page",
+      "statusCode": 301,
+      "version": 0,
+      "regex": false,
+      "description": "Legacy redirect from old homepage"
+    },
+    {
+      "id": "0||||/blog/post-1",
+      "path": "/blog/post-1",
+      "host": "",
+      "redirectURL": "/articles/welcome",
+      "statusCode": 302,
+      "version": 0,
+      "regex": false,
+      "description": "Blog migration - first post"
+    },
+    {
+      "id": "0||||/products",
+      "path": "/products",
+      "host": "",
+      "redirectURL": "/shop",
+      "statusCode": 301,
+      "version": 0,
+      "regex": false,
+      "description": "Rebrand from products to shop"
+    },
+    {
+      "id": "0||example.com||/contact-us",
+      "path": "/contact-us",
+      "host": "example.com",
+      "redirectURL": "/support/contact",
+      "statusCode": 301,
+      "version": 0,
+      "regex": false,
+      "description": "Host-specific contact page redirect"
+    },
+    {
+      "id": "0||||/about",
+      "path": "/about",
+      "host": "",
+      "redirectURL": "https://www.example.com/company/about",
+      "statusCode": 301,
+      "version": 0,
+      "regex": false,
+      "description": "External redirect to new site"
+    },
+    {
+      "id": "0||||/seasonal-sale",
+      "path": "/seasonal-sale",
+      "host": "",
+      "redirectURL": "/promotions/winter-2026",
+      "statusCode": 302,
+      "version": 0,
+      "regex": false,
+      "utcStartTime": "2026-01-01T00:00:00Z",
+      "utcEndTime": "2026-03-31T23:59:59Z",
+      "description": "Time-limited seasonal sale redirect (Jan-Mar 2026)"
+    },
+    {
+      "id": "0||||/future-launch",
+      "path": "/future-launch",
+      "host": "",
+      "redirectURL": "/products/new-release",
+      "statusCode": 302,
+      "version": 0,
+      "regex": false,
+      "utcStartTime": "2030-01-01T00:00:00Z",
+      "utcEndTime": "2030-12-31T23:59:59Z",
+      "description": "Future redirect - should return 404 until 2030"
+    },
+    {
+      "id": "0||||/expired-promo",
+      "path": "/expired-promo",
+      "host": "",
+      "redirectURL": "/archive/old-promo",
+      "statusCode": 302,
+      "version": 0,
+      "regex": false,
+      "utcStartTime": "2020-01-01T00:00:00Z",
+      "utcEndTime": "2020-12-31T23:59:59Z",
+      "description": "Expired redirect - should return 404 (ended 2020)"
+    },
+    {
+      "id": "1||||/versioned-page",
+      "path": "/versioned-page",
+      "host": "",
+      "redirectURL": "/v1/page",
+      "statusCode": 301,
+      "version": 1,
+      "regex": false,
+      "description": "Version 1 redirect rule"
+    }
+  ]
+}
