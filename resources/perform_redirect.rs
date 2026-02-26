@@ -1,5 +1,5 @@
 use yeti_core::prelude::*;
-use yeti_core::utils::redirect::{build_lookup_key, is_rule_active, normalize_path};
+use yeti_core::utils::redirect::{lookup_rule, normalize_path};
 
 /// Perform an actual HTTP redirect based on stored rules
 ///
@@ -56,32 +56,6 @@ impl Resource for PerformRedirect {
 }
 
 register_resource!(PerformRedirect);
-
-/// Lookup a redirect rule with host fallback logic
-async fn lookup_rule(
-    rules: &Table,
-    version: i64,
-    host: &str,
-    path: &str,
-) -> Result<Option<serde_json::Value>> {
-    let key = build_lookup_key(version, host, path);
-    if let Some(record) = rules.get_by_id(&key).await? {
-        if is_rule_active(&record) {
-            return Ok(Some(record));
-        }
-    }
-
-    if !host.is_empty() {
-        let fallback_key = build_lookup_key(version, "", path);
-        if let Some(record) = rules.get_by_id(&fallback_key).await? {
-            if is_rule_active(&record) {
-                return Ok(Some(record));
-            }
-        }
-    }
-
-    Ok(None)
-}
 
 /// Build an HTTP redirect response
 fn build_redirect_response(

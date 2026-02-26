@@ -1,5 +1,5 @@
 use yeti_core::prelude::*;
-use yeti_core::utils::redirect::{build_lookup_key, is_rule_active, normalize_path};
+use yeti_core::utils::redirect::{apply_query_string_mode, lookup_rule, normalize_path};
 
 /// Check for matching redirect rule (returns JSON for edge worker integration)
 ///
@@ -59,38 +59,3 @@ impl Resource for CheckRedirect {
 }
 
 register_resource!(CheckRedirect);
-
-/// Lookup a redirect rule with host fallback logic
-async fn lookup_rule(
-    rules: &Table,
-    version: i64,
-    host: &str,
-    path: &str,
-) -> Result<Option<serde_json::Value>> {
-    let key = build_lookup_key(version, host, path);
-    if let Some(record) = rules.get_by_id(&key).await? {
-        if is_rule_active(&record) {
-            return Ok(Some(record));
-        }
-    }
-
-    if !host.is_empty() {
-        let fallback_key = build_lookup_key(version, "", path);
-        if let Some(record) = rules.get_by_id(&fallback_key).await? {
-            if is_rule_active(&record) {
-                return Ok(Some(record));
-            }
-        }
-    }
-
-    Ok(None)
-}
-
-/// Strip query string from path if query string mode is "ignore"
-fn apply_query_string_mode<'a>(path: &'a str, qs_mode: &str) -> &'a str {
-    if qs_mode == "i" {
-        path.split('?').next().unwrap_or(path)
-    } else {
-        path
-    }
-}
