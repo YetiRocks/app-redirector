@@ -42,7 +42,16 @@ export function RedirectPage() {
     setCheckLoading(true)
     setCheckResult('')
     try {
-      const response = await fetch(`${BASE_URL}/checkredirect?url=${encodeURIComponent(checkPath.trim())}`)
+      const input = checkPath.trim()
+      // Parse host from input: "example.com/path" or "example.com" (no leading /)
+      let url = `${BASE_URL}/checkredirect?url=${encodeURIComponent(input)}`
+      if (!input.startsWith('/')) {
+        const slashIdx = input.indexOf('/')
+        const host = slashIdx >= 0 ? input.substring(0, slashIdx) : input
+        const path = slashIdx >= 0 ? input.substring(slashIdx) : '/'
+        url = `${BASE_URL}/checkredirect?url=${encodeURIComponent(path)}&h=${encodeURIComponent(host)}`
+      }
+      const response = await fetch(url)
       const data = await response.json()
       setCheckResult(JSON.stringify(data, null, 2))
     } catch (err) {
@@ -113,7 +122,7 @@ export function RedirectPage() {
             <input
               type="text"
               className="search-input"
-              placeholder="Path to check..."
+              placeholder="/path or host/path..."
               value={checkPath}
               onChange={e => setCheckPath(e.target.value)}
               onKeyDown={handleKeyDown}

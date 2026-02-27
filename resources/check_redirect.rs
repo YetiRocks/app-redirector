@@ -20,6 +20,7 @@ pub struct CheckRedirect;
 
 impl Resource for CheckRedirect {
     fn name(&self) -> &str { "checkredirect" }
+    fn is_public(&self) -> bool { true }
 
     get!(request, ctx, {
         // Get the path from ID or url parameter

@@ -6,6 +6,7 @@ pub struct RedirectUpload;
 
 impl Resource for RedirectUpload {
     fn name(&self) -> &str { "redirectupload" }
+    fn is_public(&self) -> bool { true }
 
     post!(request, ctx, {
         let is_csv = ctx.content_type()

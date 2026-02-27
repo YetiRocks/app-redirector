@@ -22,6 +22,8 @@ pub struct PerformRedirect;
 impl Resource for PerformRedirect {
     fn name(&self) -> &str { "r" }
 
+    fn is_public(&self) -> bool { true }
+
     get!(request, ctx, {
         // Extract the full path after /r/ from the request URI
         let uri_path = request.uri().path();
