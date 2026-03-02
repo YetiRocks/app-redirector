@@ -72,7 +72,7 @@ async fn process_redirects(
         let key = format!("{}||{}||{}", version, host, path);
 
         // Check if already exists
-        if table.get_by_id(&key).await?.is_some() {
+        if table.does_exist(&key).await? {
             skipped.push(json!({"reason": "duplicate", "item": item}));
             continue;
         }

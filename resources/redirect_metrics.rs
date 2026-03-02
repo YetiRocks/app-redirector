@@ -36,7 +36,7 @@ impl Resource for RedirectMetrics {
         let mut by_status: HashMap<i64, usize> = HashMap::new();
 
         // Scan all records
-        let records: Vec<serde_json::Value> = rules.scan_all().await?;
+        let records: Vec<serde_json::Value> = rules.get_all().await?;
         let total = records.len();
 
         for record in &records {
@@ -65,7 +65,7 @@ impl Resource for RedirectMetrics {
         let client_ip = request.ip().unwrap_or_else(|| "unknown".to_string());
 
         let rules = ctx.get_table("Rule")?;
-        let records: Vec<serde_json::Value> = rules.scan_all().await?;
+        let records: Vec<serde_json::Value> = rules.get_all().await?;
 
         reply()
             .header("x-request-id", &request_id)
