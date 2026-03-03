@@ -8,3 +8,5 @@
 .message-title { font-weight: 600; font-size: var(--font-size-sm); color: var(--color-white); margin-bottom: var(--space-1); }
 .message-content { color: var(--color-grey); font-size: var(--font-size-xs); margin-bottom: var(--space-1); }
 .message-meta { font-size: var(--font-size-xs); color: var(--color-grey); opacity: 0.6; }
+
+.header-actions { display: flex; align-items: center; gap: var(--space-2); }
