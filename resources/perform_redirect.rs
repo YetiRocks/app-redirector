@@ -22,7 +22,7 @@ pub struct PerformRedirect;
 impl Resource for PerformRedirect {
     fn name(&self) -> &str { "r" }
 
-    fn is_public(&self) -> bool { true }
+    fn allow_read(&self, _: &dyn AccessControl, _: &RequestTarget, _: &ResourceParams) -> bool { true }
 
     get!(request, ctx, {
         // Extract the full path after /r/ from the request URI

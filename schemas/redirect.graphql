@@ -7,7 +7,7 @@
 Redirect rule with static or regex pattern matching.
 Supports query string operations and time-based activation.
 """
-type Rule @table(name: "rule", database: "app-redirector") @export(name: "rule") {
+type Rule @table(name: "rule", database: "app-redirector") @export(name: "rule", public: [read]) {
   """Unique identifier for the rule"""
   id: ID!
 
@@ -64,7 +64,7 @@ type Rule @table(name: "rule", database: "app-redirector") @export(name: "rule")
 Host-specific redirect configuration.
 Allows per-host version control and settings.
 """
-type Hosts @table(name: "hosts", database: "app-redirector") @export(name: "hosts") {
+type Hosts @table(name: "hosts", database: "app-redirector") @export(name: "hosts", public: [read]) {
   """Hostname (e.g., example.com)"""
   id: ID!
 
@@ -91,7 +91,7 @@ type Hosts @table(name: "hosts", database: "app-redirector") @export(name: "host
 Version control for mass cutover of redirect rules.
 Allows testing and atomic activation of rule sets.
 """
-type Version @table(name: "version", database: "app-redirector") @export(name: "version") {
+type Version @table(name: "version", database: "app-redirector") @export(name: "version", public: [read]) {
   """Version identifier (e.g., v1, v2, prod-2024-01)"""
   id: ID!
 

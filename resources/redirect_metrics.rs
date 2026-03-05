@@ -6,7 +6,7 @@ pub struct RedirectMetrics;
 
 impl Resource for RedirectMetrics {
     fn name(&self) -> &str { "redirectmetrics" }
-    fn is_public(&self) -> bool { true }
+    fn allow_read(&self, _: &dyn AccessControl, _: &RequestTarget, _: &ResourceParams) -> bool { true }
 
     get!(request, ctx, {
         // Demonstrate both request APIs:
