@@ -1,21 +1,15 @@
 use yeti_sdk::prelude::*;
 
 /// Analytics about redirect rules
-#[derive(Default)]
-pub struct RedirectMetrics;
-
-impl Resource for RedirectMetrics {
-    fn name(&self) -> &str { "redirectmetrics" }
-
-    get!(request, ctx, {
+resource!(RedirectMetrics {
+    name = "redirectmetrics",
+    get(request, ctx) => {
         let request_id = request.id();
         let client_ip = request.ip().unwrap_or_else(|| "unknown".to_string());
         let hostname = request.hostname().unwrap_or_else(|| "unknown".to_string());
 
-        tracing::info!(
-            "Metrics request: id={}, ip={}, host={}",
-            request_id, client_ip, hostname
-        );
+        yeti_log!(info, "Metrics request: id={}, ip={}, host={}",
+            request_id, client_ip, hostname);
 
         let rules = ctx.get_table("Rule")?;
         let mut by_host: HashMap<String, usize> = HashMap::new();
@@ -43,9 +37,8 @@ impl Resource for RedirectMetrics {
                 "clientIp": client_ip
             }
         }))
-    });
-
-    post!(request, ctx, {
+    },
+    post(request, ctx) => {
         let request_id = request.id();
         let client_ip = request.ip().unwrap_or_else(|| "unknown".to_string());
         let rules = ctx.get_table("Rule")?;
@@ -59,21 +52,17 @@ impl Resource for RedirectMetrics {
                 "requestId": request_id,
                 "clientIp": client_ip,
             }))
-    });
-
-    put!(request, _ctx, {
+    },
+    put(request, _ctx) => {
         let request_id = request.id();
         reply()
             .header("x-request-id", &request_id)
             .messagepack(json!({"format": "messagepack", "efficient": true}))
-    });
-
-    patch!(request, _ctx, {
+    },
+    patch(request, _ctx) => {
         let request_id = request.id();
         reply()
             .header("x-request-id", &request_id)
             .cbor(json!({"format": "cbor", "standard": "RFC 8949"}))
-    });
-}
-
-register_resource!(RedirectMetrics);
+    }
+});

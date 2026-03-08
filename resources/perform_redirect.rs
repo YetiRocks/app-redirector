@@ -6,13 +6,9 @@ use yeti_sdk::utils::redirect::{lookup_rule, normalize_path};
 /// Query params:
 /// - h: Host filter (optional)
 /// - v: Version number (default: 0)
-#[derive(Default)]
-pub struct PerformRedirect;
-
-impl Resource for PerformRedirect {
-    fn name(&self) -> &str { "r" }
-
-    get!(request, ctx, {
+resource!(PerformRedirect {
+    name = "r",
+    get(request, ctx) => {
         let uri_path = request.uri().path();
         let path = if let Some(idx) = uri_path.find("/r/") {
             let after_r = &uri_path[idx + 3..];
@@ -35,10 +31,8 @@ impl Resource for PerformRedirect {
         }
 
         not_found(&format!("No redirect rule found for path: {}", path))
-    });
-}
-
-register_resource!(PerformRedirect);
+    }
+});
 
 fn build_redirect_response(
     target_url: &str,

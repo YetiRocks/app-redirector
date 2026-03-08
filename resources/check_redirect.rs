@@ -8,13 +8,9 @@ use yeti_sdk::utils::redirect::{apply_query_string_mode, lookup_rule, normalize_
 /// - h: Host filter (optional)
 /// - v: Version number (default: 0)
 /// - qs: Query string mode - 'i' to ignore, 'm' to match (default: 'm')
-#[derive(Default)]
-pub struct CheckRedirect;
-
-impl Resource for CheckRedirect {
-    fn name(&self) -> &str { "checkredirect" }
-
-    get!(request, ctx, {
+resource!(CheckRedirect {
+    name = "checkredirect",
+    get(request, ctx) => {
         let Some(raw_path) = ctx.id().or_else(|| ctx.get("url")) else {
             return reply().json(json!(null));
         };
@@ -40,7 +36,5 @@ impl Resource for CheckRedirect {
         }
 
         reply().json(json!(null))
-    });
-}
-
-register_resource!(CheckRedirect);
+    }
+});

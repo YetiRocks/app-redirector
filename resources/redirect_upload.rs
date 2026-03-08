@@ -1,13 +1,9 @@
 use yeti_sdk::prelude::*;
 
 /// Upload redirect rules via CSV or JSON
-#[derive(Default)]
-pub struct RedirectUpload;
-
-impl Resource for RedirectUpload {
-    fn name(&self) -> &str { "redirectupload" }
-
-    post!(request, ctx, {
+resource!(RedirectUpload {
+    name = "redirectupload",
+    post(request, ctx) => {
         let is_csv = ctx.content_type()
             .map(|ct| ct.contains("csv"))
             .unwrap_or(false);
@@ -22,68 +18,35 @@ impl Resource for RedirectUpload {
         };
 
         let rules = ctx.get_table("Rule")?;
-        let (success, skipped) = process_redirects(&rules, redirects).await?;
 
-        reply().json(json!({
-            "message": format!("Successfully loaded {} redirects", success),
-            "skipped": skipped
-        }))
-    });
-}
+        let result = bulk_upsert(
+            &rules,
+            redirects,
+            |item| {
+                let path = item["path"].as_str()?.trim().to_lowercase();
+                let host = item["host"].as_str().unwrap_or("").trim().to_lowercase();
+                let version = item["version"].as_i64().unwrap_or(0);
+                Some(composite_key_from(&[&version as &dyn std::fmt::Display, &host, &path]))
+            },
+            |item| {
+                let path = item["path"].as_str()
+                    .map(|s| s.trim().to_lowercase())
+                    .ok_or("missing path".to_string())?;
+                let url = item["redirectURL"].as_str()
+                    .map(|s| s.trim().to_lowercase())
+                    .ok_or("missing redirectURL".to_string())?;
+                let host = item["host"].as_str().unwrap_or("").trim().to_lowercase();
+                let status = item["statusCode"].as_i64().unwrap_or(301);
+                let version = item["version"].as_i64().unwrap_or(0);
+                let regex = item["regex"].as_bool().unwrap_or(false);
 
-fn parse_csv(body: &[u8]) -> Vec<Value> {
-    let content = String::from_utf8_lossy(body);
-    let mut lines = content.lines();
-    let headers: Vec<&str> = lines.next().unwrap_or("").split(',').map(|s| s.trim()).collect();
+                Ok(json!({
+                    "path": path, "host": host, "redirectURL": url,
+                    "statusCode": status, "version": version, "regex": regex
+                }))
+            },
+        ).await?;
 
-    lines.filter_map(|line| {
-        if line.trim().is_empty() { return None; }
-        let values: Vec<&str> = line.split(',').map(|s| s.trim()).collect();
-        let obj: serde_json::Map<_, _> = headers.iter().enumerate()
-            .filter_map(|(i, h)| values.get(i).map(|v| (h.to_string(), json!(v.to_string()))))
-            .collect();
-        Some(Value::Object(obj))
-    }).collect()
-}
-
-async fn process_redirects(
-    table: &Table,
-    redirects: Vec<Value>,
-) -> Result<(usize, Vec<Value>)> {
-    let mut success = 0;
-    let mut skipped = Vec::new();
-
-    for item in redirects {
-        let Some(path) = item["path"].as_str().map(|s| s.trim().to_lowercase()) else {
-            skipped.push(json!({"reason": "missing path", "item": item}));
-            continue;
-        };
-        let Some(url) = item["redirectURL"].as_str().map(|s| s.trim().to_lowercase()) else {
-            skipped.push(json!({"reason": "missing redirectURL", "item": item}));
-            continue;
-        };
-
-        let host = item["host"].as_str().unwrap_or("").trim().to_lowercase();
-        let status = item["statusCode"].as_i64().unwrap_or(301);
-        let version = item["version"].as_i64().unwrap_or(0);
-        let regex = item["regex"].as_bool().unwrap_or(false);
-
-        let key = format!("{}||{}||{}", version, host, path);
-
-        if table.does_exist(&key).await? {
-            skipped.push(json!({"reason": "duplicate", "item": item}));
-            continue;
-        }
-
-        let record = json!({
-            "path": path, "host": host, "redirectURL": url,
-            "statusCode": status, "version": version, "regex": regex
-        });
-        table.put(&key, record).await?;
-        success += 1;
+        reply().json(result.to_json("Successfully loaded"))
     }
-
-    Ok((success, skipped))
-}
-
-register_resource!(RedirectUpload);
+});
