@@ -1,4 +1,4 @@
-use yeti_core::prelude::*;
+use yeti_sdk::prelude::*;
 
 /// Upload redirect rules via CSV or JSON
 #[derive(Default)]
@@ -6,18 +6,17 @@ pub struct RedirectUpload;
 
 impl Resource for RedirectUpload {
     fn name(&self) -> &str { "redirectupload" }
-    fn allow_create(&self, _: &dyn AccessControl, _: &serde_json::Value, _: &RequestTarget, _: &ResourceParams) -> bool { true }
 
     post!(request, ctx, {
         let is_csv = ctx.content_type()
             .map(|ct| ct.contains("csv"))
             .unwrap_or(false);
 
-        let redirects: Vec<serde_json::Value> = if is_csv {
+        let redirects: Vec<Value> = if is_csv {
             parse_csv(request.body())
         } else {
             match request.json_value()? {
-                serde_json::Value::Array(arr) => arr,
+                Value::Array(arr) => arr,
                 obj => vec![obj],
             }
         };
@@ -32,7 +31,7 @@ impl Resource for RedirectUpload {
     });
 }
 
-fn parse_csv(body: &[u8]) -> Vec<serde_json::Value> {
+fn parse_csv(body: &[u8]) -> Vec<Value> {
     let content = String::from_utf8_lossy(body);
     let mut lines = content.lines();
     let headers: Vec<&str> = lines.next().unwrap_or("").split(',').map(|s| s.trim()).collect();
@@ -43,14 +42,14 @@ fn parse_csv(body: &[u8]) -> Vec<serde_json::Value> {
         let obj: serde_json::Map<_, _> = headers.iter().enumerate()
             .filter_map(|(i, h)| values.get(i).map(|v| (h.to_string(), json!(v.to_string()))))
             .collect();
-        Some(serde_json::Value::Object(obj))
+        Some(Value::Object(obj))
     }).collect()
 }
 
 async fn process_redirects(
     table: &Table,
-    redirects: Vec<serde_json::Value>,
-) -> Result<(usize, Vec<serde_json::Value>)> {
+    redirects: Vec<Value>,
+) -> Result<(usize, Vec<Value>)> {
     let mut success = 0;
     let mut skipped = Vec::new();
 
@@ -71,7 +70,6 @@ async fn process_redirects(
 
         let key = format!("{}||{}||{}", version, host, path);
 
-        // Check if already exists
         if table.does_exist(&key).await? {
             skipped.push(json!({"reason": "duplicate", "item": item}));
             continue;
