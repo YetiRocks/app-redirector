@@ -57,13 +57,10 @@ app-redirector/
 ## Configuration
 
 ```yaml
-name: "URL Redirector"
+name: "Redirector App"
 app_id: "app-redirector"
 version: "1.0.0"
 description: "URL redirect management with rule checking, versioning, and bulk CSV upload"
-enabled: true
-rest: true
-
 schemas:
   - schemas/redirect.graphql
 
