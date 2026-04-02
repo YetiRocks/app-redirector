@@ -1,5 +1,6 @@
 name: "Redirector App"
 app_id: "app-redirector"
+customer_id: "yeti"
 version: "1.0.0"
 description: "URL redirect management with rule checking, versioning, and bulk CSV upload"
 schemas:
