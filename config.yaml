@@ -4,16 +4,18 @@ customer_id: "yeti"
 version: "1.0.0"
 description: "URL redirect management with rule checking, versioning, and bulk CSV upload"
 schemas:
-  - schemas/redirect.graphql
+  path: schemas/redirect.graphql
 
 resources:
-  - resources/*.rs
+  path: resources/*.rs
+  route: /api
 
 dataLoader: data/*.json
 
-static_files:
+static:
   path: web
+  route: /
   spa: true
   build:
-    sourceDir: source
+    source: source
     command: npm run build
