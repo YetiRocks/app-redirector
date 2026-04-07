@@ -49,7 +49,7 @@ Restart yeti. App-redirector compiles automatically on first load (~2 minutes) a
 ### 2. Check a redirect rule
 
 ```bash
-curl "https://localhost:9996/app-redirector/checkredirect/old-page"
+curl "https://localhost/app-redirector/api/checkredirect/old-page"
 ```
 
 Response:
@@ -71,7 +71,7 @@ The check endpoint resolves a path against stored rules and returns the matching
 ### 3. Perform an actual redirect
 
 ```bash
-curl -v "https://localhost:9996/app-redirector/r/old-page"
+curl -v "https://localhost/app-redirector/api/r/old-page"
 ```
 
 Response:
@@ -86,7 +86,7 @@ The `/r/` endpoint issues a real HTTP redirect. Permanent redirects (301, 308) i
 ### 4. Upload rules in bulk
 
 ```bash
-curl -X POST https://localhost:9996/app-redirector/redirectupload \
+curl -X POST https://localhost/app-redirector/api/redirectupload \
   -H "Content-Type: application/json" \
   -d '[
     {
@@ -122,7 +122,7 @@ Re-uploading the same rules updates existing records (composite key dedup on ver
 ### 5. Check analytics
 
 ```bash
-curl "https://localhost:9996/app-redirector/redirectmetrics"
+curl "https://localhost/app-redirector/api/redirectmetrics"
 ```
 
 Response:
@@ -149,20 +149,20 @@ Response:
 
 ```bash
 # Check a host-specific rule
-curl "https://localhost:9996/app-redirector/checkredirect/contact-us?h=example.com"
+curl "https://localhost/app-redirector/api/checkredirect/contact-us?h=example.com"
 
 # Check a versioned rule
-curl "https://localhost:9996/app-redirector/checkredirect/versioned-page?v=1"
+curl "https://localhost/app-redirector/api/checkredirect/versioned-page?v=1"
 
 # Perform a versioned redirect
-curl -v "https://localhost:9996/app-redirector/r/versioned-page?v=1"
+curl -v "https://localhost/app-redirector/api/r/versioned-page?v=1"
 ```
 
 ### 7. Stream rule changes in real-time
 
 ```bash
 # SSE stream -- get notified when rules change
-curl "https://localhost:9996/app-redirector/rule?stream=sse"
+curl "https://localhost/app-redirector/api/rule?stream=sse"
 
 # MQTT -- subscribe to rule changes
 mosquitto_sub -t "app-redirector/rule" -h localhost -p 8883
@@ -221,7 +221,7 @@ CDN / Edge Workers / Browsers / API Clients
 
 ## Features
 
-### Check Redirect (GET /app-redirector/checkredirect/{path})
+### Check Redirect (GET /app-redirector/api/checkredirect/{path})
 
 Resolve a URL path against stored redirect rules and return the matching rule as JSON. Designed for edge worker integration where you need the redirect metadata without performing the actual redirect.
 
@@ -241,19 +241,19 @@ Resolve a URL path against stored redirect rules and return the matching rule as
 
 ```bash
 # Basic check
-curl "https://localhost:9996/app-redirector/checkredirect/old-page"
+curl "https://localhost/app-redirector/api/checkredirect/old-page"
 
 # With host filter
-curl "https://localhost:9996/app-redirector/checkredirect/contact-us?h=example.com"
+curl "https://localhost/app-redirector/api/checkredirect/contact-us?h=example.com"
 
 # Ignore query string during matching
-curl "https://localhost:9996/app-redirector/checkredirect/page?foo=bar&qs=i"
+curl "https://localhost/app-redirector/api/checkredirect/page?foo=bar&qs=i"
 
 # Using url query param instead of path
-curl "https://localhost:9996/app-redirector/checkredirect?url=/old-page"
+curl "https://localhost/app-redirector/api/checkredirect?url=/old-page"
 ```
 
-### Perform Redirect (GET /app-redirector/r/{path})
+### Perform Redirect (GET /app-redirector/api/r/{path})
 
 Execute an actual HTTP redirect based on stored rules. Returns a 3xx response with `Location` header and appropriate `Cache-Control`.
 
@@ -274,18 +274,18 @@ Execute an actual HTTP redirect based on stored rules. Returns a 3xx response wi
 
 ```bash
 # Basic redirect
-curl -v "https://localhost:9996/app-redirector/r/old-page"
+curl -v "https://localhost/app-redirector/api/r/old-page"
 
 # Host-scoped redirect
-curl -v "https://localhost:9996/app-redirector/r/contact-us?h=example.com"
+curl -v "https://localhost/app-redirector/api/r/contact-us?h=example.com"
 
 # Versioned redirect
-curl -v "https://localhost:9996/app-redirector/r/versioned-page?v=1"
+curl -v "https://localhost/app-redirector/api/r/versioned-page?v=1"
 ```
 
 Returns 404 if no matching rule is found, or if the matching rule's time window has not started or has expired.
 
-### Redirect Upload (POST /app-redirector/redirectupload)
+### Redirect Upload (POST /app-redirector/api/redirectupload)
 
 Bulk import redirect rules from CSV or JSON. Uses composite key deduplication (version + host + path) to prevent duplicates on re-import and update existing rules.
 
@@ -307,7 +307,7 @@ Bulk import redirect rules from CSV or JSON. Uses composite key deduplication (v
 
 ```bash
 # JSON upload
-curl -X POST https://localhost:9996/app-redirector/redirectupload \
+curl -X POST https://localhost/app-redirector/api/redirectupload \
   -H "Content-Type: application/json" \
   -d '[
     {"path": "/old", "redirectURL": "/new", "statusCode": 301},
@@ -315,7 +315,7 @@ curl -X POST https://localhost:9996/app-redirector/redirectupload \
   ]'
 
 # CSV upload
-curl -X POST https://localhost:9996/app-redirector/redirectupload \
+curl -X POST https://localhost/app-redirector/api/redirectupload \
   -H "Content-Type: text/csv" \
   -d 'path,redirectURL,statusCode,host,version,regex
 /old,/new,301,,0,false
@@ -324,7 +324,7 @@ curl -X POST https://localhost:9996/app-redirector/redirectupload \
 
 **Deduplication:** Composite key is generated from `version || host || path`. Re-uploading a rule with the same composite key updates the existing record instead of creating a duplicate.
 
-### Redirect Metrics (GET /app-redirector/redirectmetrics)
+### Redirect Metrics (GET /app-redirector/api/redirectmetrics)
 
 Analytics and diagnostics for redirect rules. Supports multiple HTTP methods and serialization formats.
 
@@ -348,16 +348,16 @@ Analytics and diagnostics for redirect rules. Supports multiple HTTP methods and
 
 ```bash
 # Full analytics
-curl "https://localhost:9996/app-redirector/redirectmetrics"
+curl "https://localhost/app-redirector/api/redirectmetrics"
 
 # Summary
-curl -X POST "https://localhost:9996/app-redirector/redirectmetrics"
+curl -X POST "https://localhost/app-redirector/api/redirectmetrics"
 
 # MessagePack format
-curl -X PUT "https://localhost:9996/app-redirector/redirectmetrics" --output metrics.msgpack
+curl -X PUT "https://localhost/app-redirector/api/redirectmetrics" --output metrics.msgpack
 
 # CBOR format
-curl -X PATCH "https://localhost:9996/app-redirector/redirectmetrics" --output metrics.cbor
+curl -X PATCH "https://localhost/app-redirector/api/redirectmetrics" --output metrics.cbor
 ```
 
 ### REST CRUD (auto-generated)
@@ -366,12 +366,12 @@ Full CRUD on all tables is auto-generated from the schema:
 
 | Endpoint | Methods | Description |
 |----------|---------|-------------|
-| `/app-redirector/rule` | GET, POST | List/create rules |
-| `/app-redirector/rule/{id}` | GET, PUT, DELETE | Read/update/delete a rule |
-| `/app-redirector/hosts` | GET, POST | List/create host configs |
-| `/app-redirector/hosts/{id}` | GET, PUT, DELETE | Read/update/delete a host config |
-| `/app-redirector/version` | GET, POST | List/create versions |
-| `/app-redirector/version/{id}` | GET, PUT, DELETE | Read/update/delete a version |
+| `/app-redirector/api/rule` | GET, POST | List/create rules |
+| `/app-redirector/api/rule/{id}` | GET, PUT, DELETE | Read/update/delete a rule |
+| `/app-redirector/api/hosts` | GET, POST | List/create host configs |
+| `/app-redirector/api/hosts/{id}` | GET, PUT, DELETE | Read/update/delete a host config |
+| `/app-redirector/api/version` | GET, POST | List/create versions |
+| `/app-redirector/api/version/{id}` | GET, PUT, DELETE | Read/update/delete a version |
 
 ### Real-Time Streaming (auto-generated)
 
@@ -379,9 +379,9 @@ Real-time updates are built into the platform via `@export(sse: true, mqtt: true
 
 ```bash
 # SSE -- server-sent events
-GET /app-redirector/rule?stream=sse
-GET /app-redirector/hosts?stream=sse
-GET /app-redirector/version?stream=sse
+GET /app-redirector/api/rule?stream=sse
+GET /app-redirector/api/hosts?stream=sse
+GET /app-redirector/api/version?stream=sse
 
 # MQTT -- subscribe to changes
 mosquitto_sub -t "app-redirector/rule" -h localhost -p 8883
@@ -393,7 +393,7 @@ When a rule is created, updated, or deleted via any method (REST, upload, or dir
 
 ### MCP Tools (auto-generated)
 
-MCP tools for table operations are auto-generated from `@export` schemas. Any MCP-compatible agent (Claude Code, Cursor, Windsurf) can discover and use them via the standard MCP protocol at `POST /app-redirector/mcp`.
+MCP tools for table operations are auto-generated from `@export` schemas. Any MCP-compatible agent (Claude Code, Cursor, Windsurf) can discover and use them via the standard MCP protocol at `POST /app-redirector/api/mcp`.
 
 ---
 
@@ -463,18 +463,20 @@ app_id: "app-redirector"
 version: "1.0.0"
 description: "URL redirect management with rule checking, versioning, and bulk CSV upload"
 schemas:
-  - schemas/redirect.graphql
+  path: schemas/redirect.graphql
 
 resources:
-  - resources/*.rs
+  path: resources/*.rs
+  route: /api
 
 dataLoader: data/*.json
 
-static_files:
+static:
   path: web
+  route: /
   spa: true
   build:
-    sourceDir: source
+    source: source
     command: npm run build
 ```
 
