@@ -12,7 +12,7 @@ resource!(CheckRedirect {
     name = "checkredirect",
     get(request, ctx) => {
         let Some(raw_path) = ctx.id().or_else(|| ctx.get("url")) else {
-            return reply().json(json!(null));
+            return ok(json!(null));
         };
 
         let path = normalize_path(raw_path);
@@ -35,6 +35,6 @@ resource!(CheckRedirect {
             }));
         }
 
-        reply().json(json!(null))
+        ok(json!(null))
     }
 });

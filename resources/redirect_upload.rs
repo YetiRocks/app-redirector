@@ -47,6 +47,6 @@ resource!(RedirectUpload {
             },
         ).await?;
 
-        reply().json(result.to_json("Successfully loaded"))
+        ok(result.to_json("Successfully loaded"))
     }
 });
