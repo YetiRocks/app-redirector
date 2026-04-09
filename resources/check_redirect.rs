@@ -23,7 +23,7 @@ resource!(CheckRedirect {
         let rules = ctx.tables()?.get("Rule")?;
 
         if let Some(record) = lookup_rule(&rules, version, &host, search_path).await? {
-            return reply().json(json!({
+            return ok(json!({
                 "path": record.get("path"),
                 "host": record.get("host"),
                 "redirectURL": record.get("redirectURL"),

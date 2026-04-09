@@ -27,7 +27,7 @@ resource!(RedirectMetrics {
             }
         }
 
-        reply().json(json!({
+        ok(json!({
             "totalRules": total,
             "activeRules": total,
             "byHost": by_host,
