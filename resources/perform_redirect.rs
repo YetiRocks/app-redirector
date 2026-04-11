@@ -8,8 +8,8 @@ use yeti_sdk::utils::redirect::{lookup_rule, normalize_path};
 /// - v: Version number (default: 0)
 resource!(PerformRedirect {
     name = "r",
-    get(request, ctx) => {
-        let uri_path = request.uri().path();
+    get(ctx) => {
+        let uri_path = ctx.path.as_str();
         let path = if let Some(idx) = uri_path.find("/r/") {
             let after_r = &uri_path[idx + 3..];
             if after_r.is_empty() {
@@ -20,8 +20,8 @@ resource!(PerformRedirect {
             return not_found("Invalid redirect path");
         };
 
-        let host = ctx.get_str("h", "").trim().to_lowercase();
-        let version = ctx.get_i64("v", 0);
+        let host = ctx.query("h").unwrap_or("").trim().to_lowercase();
+        let version = ctx.query_int("v", 0);
         let rules = ctx.tables()?.get("Rule")?;
 
         if let Some(record) = lookup_rule(&rules, version, &host, &path).await? {

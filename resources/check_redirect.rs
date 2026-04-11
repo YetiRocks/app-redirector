@@ -10,15 +10,15 @@ use yeti_sdk::utils::redirect::{apply_query_string_mode, lookup_rule, normalize_
 /// - qs: Query string mode - 'i' to ignore, 'm' to match (default: 'm')
 resource!(CheckRedirect {
     name = "checkredirect",
-    get(request, ctx) => {
-        let Some(raw_path) = ctx.id().or_else(|| ctx.get("url")) else {
+    get(ctx) => {
+        let Some(raw_path) = ctx.path_id.as_deref().or_else(|| ctx.query("url")) else {
             return ok(json!(null));
         };
 
         let path = normalize_path(raw_path);
-        let host = ctx.get_str("h", "").trim().to_lowercase();
-        let version = ctx.get_i64("v", 0);
-        let qs_mode = ctx.get_str("qs", "m");
+        let host = ctx.query("h").unwrap_or("").trim().to_lowercase();
+        let version = ctx.query_int("v", 0);
+        let qs_mode = ctx.query("qs").unwrap_or("m");
         let search_path = apply_query_string_mode(&path, &qs_mode);
         let rules = ctx.tables()?.get("Rule")?;
 
