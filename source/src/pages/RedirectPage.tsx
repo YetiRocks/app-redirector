@@ -25,7 +25,7 @@ export function RedirectPage() {
   const fetchRules = useCallback(async () => {
     setLoading(true)
     try {
-      const response = await fetch(`${RESOURCE_ROUTE}/rule/?limit=50`)
+      const response = await fetch(`${__STATIC_ROOT__}/${__RESOURCES_ROOT__}/rule/?limit=50`)
       if (response.ok) {
         const data = await response.json()
         setRules(Array.isArray(data) ? data : [])
@@ -43,12 +43,12 @@ export function RedirectPage() {
     try {
       const input = checkPath.trim()
       // Parse host from input: "example.com/path" or "example.com" (no leading /)
-      let url = `${RESOURCE_ROUTE}/checkredirect?url=${encodeURIComponent(input)}`
+      let url = `${__STATIC_ROOT__}/${__RESOURCES_ROOT__}/checkredirect?url=${encodeURIComponent(input)}`
       if (!input.startsWith('/')) {
         const slashIdx = input.indexOf('/')
         const host = slashIdx >= 0 ? input.substring(0, slashIdx) : input
         const path = slashIdx >= 0 ? input.substring(slashIdx) : '/'
-        url = `${RESOURCE_ROUTE}/checkredirect?url=${encodeURIComponent(path)}&h=${encodeURIComponent(host)}`
+        url = `${__STATIC_ROOT__}/${__RESOURCES_ROOT__}/checkredirect?url=${encodeURIComponent(path)}&h=${encodeURIComponent(host)}`
       }
       const response = await fetch(url)
       const data = await response.json()
@@ -64,7 +64,7 @@ export function RedirectPage() {
     setMetricsLoading(true)
     setMetrics('')
     try {
-      const response = await fetch(`${RESOURCE_ROUTE}/redirectmetrics`)
+      const response = await fetch(`${__STATIC_ROOT__}/${__RESOURCES_ROOT__}/redirectmetrics`)
       const data = await response.json()
       setMetrics(JSON.stringify(data, null, 2))
     } catch (err) {

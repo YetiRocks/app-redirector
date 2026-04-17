@@ -8,14 +8,14 @@ schemas:
 
 resources:
   path: resources/*.rs
-  route: /api
+  root: /api
 
 dataLoader: data/*.json
 
 static:
   path: web
-  route: /
+  root: /
   spa: true
   build:
     source: source
-    command: npm run build
+    command: npm install && npm run build
