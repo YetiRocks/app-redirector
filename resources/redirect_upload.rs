@@ -18,7 +18,7 @@ resource!(RedirectUpload {
             }
         };
 
-        let rules = ctx.get_table("Rule")?;
+        let rules = ctx.table("Rule")?;
 
         let result = bulk_upsert(
             &rules,

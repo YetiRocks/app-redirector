@@ -11,7 +11,7 @@ resource!(RedirectMetrics {
         yeti_log!(info, "Metrics request: id={}, ip={}, host={}",
             request_id, client_ip, hostname);
 
-        let rules = ctx.get_table("Rule")?;
+        let rules = ctx.table("Rule")?;
         let mut by_host: HashMap<String, usize> = HashMap::new();
         let mut by_status: HashMap<i64, usize> = HashMap::new();
 
@@ -41,7 +41,7 @@ resource!(RedirectMetrics {
     post(ctx) => {
         let request_id = ctx.headers.get("x-request-id").and_then(|v| v.to_str().ok()).unwrap_or("unknown").to_string();
         let client_ip = ctx.headers.get("x-forwarded-for").and_then(|v| v.to_str().ok()).unwrap_or("unknown").to_string();
-        let rules = ctx.get_table("Rule")?;
+        let rules = ctx.table("Rule")?;
         let records: Vec<Value> = rules.get_all().await?;
 
         reply()
