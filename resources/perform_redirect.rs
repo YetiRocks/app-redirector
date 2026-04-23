@@ -1,11 +1,8 @@
 use yeti_sdk::prelude::*;
 use yeti_sdk::utils::redirect::{lookup_rule, normalize_path};
 
-/// Perform an actual HTTP redirect based on stored rules
-///
-/// Query params:
-/// - h: Host filter (optional)
-/// - v: Version number (default: 0)
+// Perform an actual HTTP redirect based on stored rules.
+// Query params: h (host filter, optional), v (version, default 0).
 resource!(PerformRedirect {
     name = "r",
     get(ctx) => {

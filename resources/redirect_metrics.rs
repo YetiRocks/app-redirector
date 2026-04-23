@@ -1,6 +1,6 @@
 use yeti_sdk::prelude::*;
 
-/// Analytics about redirect rules
+// Analytics about redirect rules.
 resource!(RedirectMetrics {
     name = "redirectmetrics",
     get(ctx) => {

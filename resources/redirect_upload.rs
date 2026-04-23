@@ -1,6 +1,6 @@
 use yeti_sdk::prelude::*;
 
-/// Upload redirect rules via CSV or JSON
+// Upload redirect rules via CSV or JSON.
 resource!(RedirectUpload {
     name = "redirectupload",
     post(ctx) => {

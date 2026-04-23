@@ -1,0 +1,14 @@
+[package]
+name = "app-redirector"
+edition = "2024"
+description = "Redirector App"
+version = "1.0.0"
+
+[package.metadata.app]
+customer_id = "yeti"
+schemas = "schemas/redirect.graphql"
+resources = "resources/*.rs"
+static = { path = "web", root = "/", source = "source", spa = true, build = "npm install && npm run build" }
+loaders = { data = "data/*.json" }
+
+[dependencies]

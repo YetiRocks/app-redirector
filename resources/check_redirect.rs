@@ -1,13 +1,9 @@
 use yeti_sdk::prelude::*;
 use yeti_sdk::utils::redirect::{apply_query_string_mode, lookup_rule, normalize_path};
 
-/// Check for matching redirect rule (returns JSON for edge worker integration)
-///
-/// Query params:
-/// - url (or path ID): The path to check
-/// - h: Host filter (optional)
-/// - v: Version number (default: 0)
-/// - qs: Query string mode - 'i' to ignore, 'm' to match (default: 'm')
+// Check for matching redirect rule (returns JSON for edge worker integration).
+// Query params: url (or path ID), h (host filter, optional), v (version, default 0),
+// qs (query string mode — 'i' to ignore, 'm' to match, default 'm').
 resource!(CheckRedirect {
     name = "checkredirect",
     get(ctx) => {
