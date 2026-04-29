@@ -8,7 +8,7 @@ resource!(RedirectMetrics {
         let client_ip = ctx.headers.get("x-forwarded-for").and_then(|v| v.to_str().ok()).unwrap_or("unknown");
         let hostname = ctx.headers.get("host").and_then(|v| v.to_str().ok()).unwrap_or("unknown");
 
-        yeti_log!(info, "Metrics request: id={}, ip={}, host={}",
+        tracing::info!("Metrics request: id={}, ip={}, host={}",
             request_id, client_ip, hostname);
 
         let rules = ctx.table("Rule")?;
