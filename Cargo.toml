@@ -12,3 +12,4 @@ static = { path = "web", root = "/", source = "source", spa = true, build = "npm
 loaders = { data = "data/*.json" }
 
 [dependencies]
+tracing = "0.1"
