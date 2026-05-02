@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { syntaxHighlight } from '../utils.ts'
+import CodeBlock from '../components/CodeBlock'
 
 
 interface RedirectRule {
@@ -137,11 +137,7 @@ export function RedirectPage() {
         </div>
         <div className="panel-body" style={{ flex: 1, overflow: 'auto', padding: 0 }}>
           {checkResult ? (
-            <pre
-              className="results-pre"
-              style={{ padding: '1rem' }}
-              dangerouslySetInnerHTML={{ __html: syntaxHighlight(checkResult) }}
-            />
+            <CodeBlock value={checkResult} language="json" />
           ) : (
             <div className="empty-state">
               <p>Enter a path and click Check to test redirect rules</p>
@@ -161,11 +157,7 @@ export function RedirectPage() {
         </div>
         <div className="panel-body" style={{ flex: 1, overflow: 'auto', padding: 0 }}>
           {metrics ? (
-            <pre
-              className="results-pre"
-              style={{ padding: '1rem' }}
-              dangerouslySetInnerHTML={{ __html: syntaxHighlight(metrics) }}
-            />
+            <CodeBlock value={metrics} language="json" />
           ) : (
             <div className="empty-state">
               <p>Click Fetch Metrics to view redirect analytics</p>
