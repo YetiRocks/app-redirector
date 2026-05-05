@@ -455,29 +455,16 @@ Public access: `read` (no authentication required for GET requests).
 
 ## Configuration
 
-### config.yaml
+### Cargo.toml
 
-```yaml
-name: "Redirector App"
-app_id: "app-redirector"
-version: "1.0.0"
-description: "URL redirect management with rule checking, versioning, and bulk CSV upload"
-schemas:
-  path: schemas/redirect.graphql
+App configuration lives under `[package.metadata.app]` in `Cargo.toml` (no more `config.yaml` / `services.yaml`):
 
-resources:
-  path: resources/*.rs
-  route: /api
-
-dataLoader: data/*.json
-
-static:
-  path: web
-  route: /
-  spa: true
-  build:
-    source: source
-    command: npm run build
+```toml
+[package.metadata.app]
+schemas = "schemas/redirect.graphql"
+resources = "resources/*.rs"
+data_loader = "data/*.json"
+static = { path = "web", source = "source", spa = true, build = "npm install && npm run build" }
 ```
 
 **Key configuration notes:**
@@ -486,10 +473,9 @@ static:
 |-----|-------------|
 | `schemas` | GraphQL schema files defining Rule, Hosts, and Version tables |
 | `resources` | Rust resource files compiled into native plugins |
-| `dataLoader` | Seed data loaded on first boot (sample redirect rules) |
-| `static_files` | React/Vite SPA served at the application root |
-| `static_files.spa` | SPA mode: unmatched routes return `index.html` with 200 |
-| `static_files.build` | Auto-builds frontend from `source/` directory |
+| `data_loader` | Seed data loaded on first boot (sample redirect rules) |
+| `static.spa` | SPA mode: unmatched routes return `index.html` with 200 |
+| `static.build` | Auto-builds frontend from `source/` directory |
 
 ### Seed Data
 
@@ -506,12 +492,27 @@ Sample rules are loaded from `data/sample-rules.json` on first boot, including:
 
 ## Authentication
 
-App-redirector uses yeti's built-in auth system. In development mode, all endpoints are accessible without authentication. In production:
+App-redirector uses yeti's built-in auth system. To require sign-in for write operations, add a `[package.metadata.auth]` block to `Cargo.toml`:
+
+```toml
+[package.metadata.auth]
+allow_signup = true
+default_role = "admin"
+
+[package.metadata.auth.oauth]
+providers = [
+  { name = "google", client_id = "${GOOGLE_CLIENT_ID}", client_secret = "${GOOGLE_CLIENT_SECRET}" },
+]
+```
+
+In development mode (no providers configured), all endpoints are accessible without authentication. In production:
 
 - **Rule, Hosts, and Version tables** allow public `read` access (declared via `@export(public: [read])` in the schema)
 - **Write operations** (upload, create, update, delete) require authentication
 - **Custom resources** (checkredirect, perform redirect) are read-only and publicly accessible
 - **JWT**, **Basic Auth**, and **OAuth** are supported (configured via yeti-auth)
+
+**Frontend gate:** the management UI ships a configurable `src/pages/Login.tsx` and a `src/hooks/useAuth.ts` hook. `App.tsx` calls `useAuth()` and renders `<Login/>` when sign-in is required. If no auth providers are configured, `useAuth` returns `true` and the gate is a no-op.
 
 For multi-domain deployments, use the `host` field on rules to scope redirects per domain and the Hosts table to manage per-domain settings.
 
@@ -521,7 +522,7 @@ For multi-domain deployments, use the `host` field on rules to scope redirects p
 
 ```
 app-redirector/
-├── config.yaml              # App configuration
+├── Cargo.toml               # App + [package.metadata.app] manifest
 ├── schemas/
 │   └── redirect.graphql     # Rule, Hosts, Version tables
 ├── resources/
@@ -531,11 +532,23 @@ app-redirector/
 │   └── redirect_metrics.rs  # Analytics and metrics endpoint
 ├── data/
 │   └── sample-rules.json    # Seed redirect rules
-└── source/                  # React/Vite frontend
+└── source/                  # React/Vite frontend (one-page model)
     ├── index.html
     ├── package.json
     ├── vite.config.ts
     └── src/
+        ├── App.tsx           # Thin shell — auth gate + management UI
+        ├── main.tsx          # Entry point
+        ├── api.ts            # Fetch helpers
+        ├── types.ts          # Shared TypeScript types
+        ├── utils.ts          # Pure helpers (formatters, etc.)
+        ├── components/       # Reusable UI
+        ├── hooks/            # React hooks (includes useAuth.ts)
+        ├── pages/            # Page components (includes Login.tsx)
+        └── styles/
+            ├── _vars.css     # Per-app brand tokens
+            ├── yeti.css      # Canonical Yeti stylesheet
+            └── index.css     # App-specific overrides
 ```
 
 ---
