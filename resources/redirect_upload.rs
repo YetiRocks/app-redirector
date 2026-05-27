@@ -4,13 +4,13 @@ use yeti_sdk::prelude::*;
 resource!(RedirectUpload {
     name = "redirectupload",
     post(ctx) => {
-        let is_csv = ctx.headers.get("content-type")
+        let is_csv = ctx.headers().get("content-type")
             .and_then(|v| v.to_str().ok())
             .map(|ct| ct.contains("csv"))
             .unwrap_or(false);
 
         let redirects: Vec<Value> = if is_csv {
-            parse_csv(&ctx.body)
+            parse_csv(ctx.body())
         } else {
             match ctx.require_json_body()?.clone() {
                 Value::Array(arr) => arr,

@@ -7,7 +7,7 @@ use yeti_sdk::utils::redirect::{apply_query_string_mode, lookup_rule, normalize_
 resource!(CheckRedirect {
     name = "checkredirect",
     get(ctx) => {
-        let path_opt = (!ctx.path_id.is_empty()).then(|| ctx.path_id.as_str());
+        let path_opt = (!ctx.path_id().is_empty()).then(|| ctx.path_id());
         let Some(raw_path) = path_opt.or_else(|| ctx.query("url")) else {
             return ok(json!(null));
         };

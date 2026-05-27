@@ -6,7 +6,7 @@ use yeti_sdk::utils::redirect::{lookup_rule, normalize_path};
 resource!(PerformRedirect {
     name = "r",
     get(ctx) => {
-        let uri_path = ctx.path.as_str();
+        let uri_path = ctx.path();
         let path = if let Some(idx) = uri_path.find("/r/") {
             let after_r = &uri_path[idx + 3..];
             if after_r.is_empty() {

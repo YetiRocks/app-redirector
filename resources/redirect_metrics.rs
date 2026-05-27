@@ -4,9 +4,9 @@ use yeti_sdk::prelude::*;
 resource!(RedirectMetrics {
     name = "redirectmetrics",
     get(ctx) => {
-        let request_id = ctx.headers.get("x-request-id").and_then(|v| v.to_str().ok()).unwrap_or("unknown");
-        let client_ip = ctx.headers.get("x-forwarded-for").and_then(|v| v.to_str().ok()).unwrap_or("unknown");
-        let hostname = ctx.headers.get("host").and_then(|v| v.to_str().ok()).unwrap_or("unknown");
+        let request_id = ctx.headers().get("x-request-id").and_then(|v| v.to_str().ok()).unwrap_or("unknown");
+        let client_ip = ctx.headers().get("x-forwarded-for").and_then(|v| v.to_str().ok()).unwrap_or("unknown");
+        let hostname = ctx.headers().get("host").and_then(|v| v.to_str().ok()).unwrap_or("unknown");
 
         tracing::info!("Metrics request: id={}, ip={}, host={}",
             request_id, client_ip, hostname);
@@ -39,8 +39,8 @@ resource!(RedirectMetrics {
         }))
     },
     post(ctx) => {
-        let request_id = ctx.headers.get("x-request-id").and_then(|v| v.to_str().ok()).unwrap_or("unknown").to_string();
-        let client_ip = ctx.headers.get("x-forwarded-for").and_then(|v| v.to_str().ok()).unwrap_or("unknown").to_string();
+        let request_id = ctx.headers().get("x-request-id").and_then(|v| v.to_str().ok()).unwrap_or("unknown").to_string();
+        let client_ip = ctx.headers().get("x-forwarded-for").and_then(|v| v.to_str().ok()).unwrap_or("unknown").to_string();
         let rules = ctx.table("Rule")?;
         let records: Vec<Value> = rules.get_all().await?;
 
@@ -54,13 +54,13 @@ resource!(RedirectMetrics {
             }))
     },
     put(ctx) => {
-        let request_id = ctx.headers.get("x-request-id").and_then(|v| v.to_str().ok()).unwrap_or("unknown");
+        let request_id = ctx.headers().get("x-request-id").and_then(|v| v.to_str().ok()).unwrap_or("unknown");
         reply()
             .header("x-request-id", request_id)
             .messagepack(json!({"format": "messagepack", "efficient": true}))
     },
     patch(ctx) => {
-        let request_id = ctx.headers.get("x-request-id").and_then(|v| v.to_str().ok()).unwrap_or("unknown");
+        let request_id = ctx.headers().get("x-request-id").and_then(|v| v.to_str().ok()).unwrap_or("unknown");
         reply()
             .header("x-request-id", request_id)
             .cbor(json!({"format": "cbor", "standard": "RFC 8949"}))
