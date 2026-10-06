@@ -9,3 +9,57 @@
 .message-title { font-weight: 600; font-size: var(--font-size-sm); color: var(--color-white); margin-bottom: var(--space-1); }
 .message-content { color: var(--color-grey); font-size: var(--font-size-xs); margin-bottom: var(--space-1); }
 
+
+/* ── Phone width ──
+ * Two side-by-side panes leave each about 160px at 320px, so the Check input
+ * and button and the Fetch Metrics button were pushed past the pane edge and
+ * clipped. Below 600px the panes stack in one scrolling column, and a pane
+ * header wraps its actions under the title, the input taking the free width. */
+@media (max-width: 600px) {
+  .page.cols-2 {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    /* Each row as tall as its pane, so the column scrolls instead of the
+     * panes shrinking into each other and under the footer. */
+    grid-auto-rows: max-content;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  /* Stacked, a pane is as tall as its content, so a result body needs a floor
+   * or it collapses to a sliver; past that it scrolls as on desktop. */
+  .page.cols-2 > .panel > .panel-body {
+    min-height: 200px;
+  }
+
+  /* A rule's path and target URL are unbroken strings; let them wrap. */
+  .message-title,
+  .message-content {
+    overflow-wrap: anywhere;
+  }
+
+  .page.cols-2 > .panel {
+    min-height: 240px;
+    overflow: visible;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-primary);
+  }
+
+  .panel-header {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    height: auto;
+    min-height: 51px;
+    padding-block: var(--space-2);
+  }
+
+  .header-actions {
+    flex: 1 1 100%;
+  }
+
+  .header-actions .search-input {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+}
