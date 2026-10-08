@@ -1,9 +1,22 @@
 use yeti_sdk::prelude::*;
 
+/// The role that may upload redirect rules (`auth/roles.json`).
+const ROLE_EDITOR: &str = "app-redirector:editor";
+
 // Upload redirect rules via CSV or JSON.
 resource!(RedirectUpload {
     name = "redirectupload",
     post(ctx) => {
+        // Writes `Rule`, so it needs an authenticated caller holding the
+        // `editor` role (auth/roles.json grants it the write). Refused before
+        // any work; the upsert runs on the caller's handle, so the role's
+        // table grant is enforced again by the store (YTC-1905).
+        if !ctx.access().is_authenticated() {
+            return unauthorized("POST /app-redirector/redirectupload needs an authenticated caller");
+        }
+        if !(ctx.access().is_super_user() || ctx.access().has_role(ROLE_EDITOR)) {
+            return error_response(403, "POST /app-redirector/redirectupload needs the app-redirector:editor role");
+        }
         let is_csv = ctx.headers().get("content-type")
             .and_then(|v| v.to_str().ok())
             .map(|ct| ct.contains("csv"))
