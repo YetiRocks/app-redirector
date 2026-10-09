@@ -1,0 +1,16 @@
+[
+  {
+    "id": "app-redirector:editor",
+    "appId": "app-redirector",
+    "name": "Editor",
+    "permission": {
+      "databases": {
+        "app-redirector": {
+          "tables": {
+            "rule": { "read": true, "insert": true, "update": true, "delete": false }
+          }
+        }
+      }
+    }
+  }
+]
