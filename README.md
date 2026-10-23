@@ -366,11 +366,11 @@ Full CRUD on all tables is auto-generated from the schema:
 
 | Endpoint | Methods | Description |
 |----------|---------|-------------|
-| `/app-redirector/api/rule` | GET, POST | List/create rules |
+| `/app-redirector/api/rule/` | GET, POST | List/create rules |
 | `/app-redirector/api/rule/{id}` | GET, PUT, DELETE | Read/update/delete a rule |
-| `/app-redirector/api/hosts` | GET, POST | List/create host configs |
+| `/app-redirector/api/hosts/` | GET, POST | List/create host configs |
 | `/app-redirector/api/hosts/{id}` | GET, PUT, DELETE | Read/update/delete a host config |
-| `/app-redirector/api/version` | GET, POST | List/create versions |
+| `/app-redirector/api/version/` | GET, POST | List/create versions |
 | `/app-redirector/api/version/{id}` | GET, PUT, DELETE | Read/update/delete a version |
 
 ### Real-Time Streaming (auto-generated)
